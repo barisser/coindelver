@@ -20,4 +20,7 @@ def string_to_correlation(correlation_string):
     answer.append(temp)
   return answer
 
+def generate_new_id():
+  return hashlib.sha256(str(random.random()))
+
 a=[['first',0.3], ['second', 3232]]
