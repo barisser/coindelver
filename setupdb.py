@@ -18,3 +18,8 @@ def init():
 
     dbstring = "create table outputs (output_id varchar(200), person_id varchar(200), transaction_hash varchar(200), output_index int, bitcoin_id varchar(200), spent bool, value bigint, type varchar(100), destination_address varchar(200));"
     db.dbexecute(dbstring, False)
+
+def reset():
+    dbstring = "drop table addresses;drop table outputs; drop table people; drop table correlations; drop table meta;"
+    db.dbexecute(dbstring, False)
+    init()

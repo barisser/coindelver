@@ -1,4 +1,5 @@
 import db
+import blocks
 
 class Meta:
     def __init__(self):
@@ -9,13 +10,15 @@ class Meta:
     def update(self, lastblockdone):
         dbstring = "update meta set lastblockdone = "+str(lastblockdone)+";"
         db.dbexecute(dbstring, False)
+        self.lastblockdone = lastblockdone
 
     def process_blocks(self, blockn):
         for i in range(self.lastblockdone+1, blockn+self.lastblockdone+1):
-            block = Blocks(i)
+            block = blocks.Blocks(i)
             block.download_data()
             block.process()
             del block
             self.update(i)
 
-            
+
+main = Meta()
