@@ -25,6 +25,15 @@ def assign_new_id_to_mined(tx, height):
       print dbstring
       db.dbexecute(dbstring,False)
 
+
+    person_id = db.dbexecute("select person_id from addresses where public_address='"+str(receiving_address)+"';", True)
+    if len(person_id)>0:
+        person_id = person_id [0][0]
+        weight = 1.0
+        output_id = str(tx['hash'])+":0" #always first...
+        db.add_correlation(output_id, weight, person_id)
+
+
 def link_inputs(tx, height):
   ins = []
   for x in tx['inputs']:
@@ -36,10 +45,28 @@ def link_inputs_in_block(height, txs):
   for tx in txs:
     link_inputs(tx, height)
 
+def update_db_with_txs(txs):
+    for tx in txs:
+        dbstring = ''
+        db.dbexecute(dbstring,False)
+
+def add_outputs_from_tx(tx_data):
+    outputs = tx_data['out']
+    for output in outputs:
+        destination_address = output['addr']
+        spent = output['spent']
+        value = output['value']
+        txhash = tx_data['hash']
+        output_index = output['n']
+        output_id = txhash+":"+str(output_index)
+        db.add_output(txhash, output_index, '', destination_address, '', output_id, spent, value)
+
 def mined_tx_in_block(txs, height):
   for tx in txs:
+    add_outputs_from_tx(tx)
     if not 'prev_out' in tx['inputs'][0]:
       assign_new_id_to_mined(tx, height)
+
 
 def process_block(height):
   txs = get_txs(height)
@@ -50,7 +77,6 @@ def process_blocks_in_range(start_height, last_height):
   for i in range(start_height, last_height+1):
     process_block(i)
     print "processed block "+str(i)
-
 
 def link_addresses(address_list, block_height):
   known_ids = []

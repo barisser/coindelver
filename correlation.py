@@ -1,26 +1,26 @@
 import hashlib
-
-def correlation_to_string(correlation_vector):
-  #[[address, fraction]]
-  answer = ''
-  for x in correlation_vector:
-    answer = answer + "_"+x[0]
-    answer = answer + ";"+str(x[1])
-  return answer
-
-def string_to_correlation(correlation_string):
-  answer = []
-  sets = correlation_string.split('_')
-  sets = sets[1:len(sets)]
-  for x in sets:
-    temp = []
-    ss = x.split(';')
-    temp.append(ss[0])
-    temp.append(float(ss[1]))
-    answer.append(temp)
-  return answer
+import db
 
 def generate_new_id():
   return hashlib.sha256(str(random.random()))
 
-a=[['first',0.3], ['second', 3232]]
+def get_correlations_on_address(address):
+    all_outputs = db.get_outputs_on_address(address, False)
+    result = []
+    for output in all_outputs:
+        output_id = output[5]
+        correlations = db.get_correlations(output_id)
+        for correlation in correlations:
+            weight = correlation[1]
+            output_id = correlation[0]
+            person_id = correlation[2]
+
+            if person_id in result:
+                result[person_id] = result[person_id] + weight
+            else:
+                result[person_id] = weight
+    return result
+
+def get_correlations_on_tx_inputs(input_set):
+    for input in input_set:
+        correlations = db.
