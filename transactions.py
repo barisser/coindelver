@@ -13,8 +13,39 @@ class Transactions:
 
     def process(self):
         #all processing occurs here
+        self.maintain_outputs_addresses_new_persons()
         self.check_for_mining_transactions()
         self.merge_identities_many_inputs()
+        self.pass_on_inputs_correlations()
+        self.inherit_upstream_correlations()
+
+    def get_my_correlations():
+        correlations = []
+        for input in self.inputs:
+            previous_output = Outputs("")
+
+    def pass_on_inputs_correlations():
+
+
+    def inherit_upstream_correlations():
+
+    def maintain_outputs_addresses_new_persons(self):
+        if 'prev_out' in self.inputs[0]: #make sure its not a mining transaction
+            for output in self.outputs:
+                #add output to db
+                output_id = self.txhash+":"+str(output['n'])
+                destination_address = output['addr']
+                #check for existing person_id destination pair
+                found_addresses = db.dbexecute("select * from addresses where public_address='"+str(destination_address)+"';",True)
+                if len(found_addresses)>0:
+                    person_id = found_addresses[0][1]
+                else:
+                    person_id = other.generate_new_id()
+                    db.add_person(person_id, '', self.height)
+                    db.add_address(destination_address, person_id, '')
+
+                db.add_output(output_id, person_id, self.txhash, str(output['n']), '', output['spent'], output['value'], 'standard', output['addr'])
+
 
     def check_for_mining_transactions(self):
         if not 'prev_out' in self.inputs[0]:

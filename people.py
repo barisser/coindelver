@@ -34,3 +34,8 @@ class Person:
         else:
             dbstring = "insert into people values ('"+str(self.person_id)+"', '"+str(self.name)+"', -1);"
             db.dbexecute(dbstring, False)
+
+    def addresses(self):
+        dbstring = "select public_address from addresses where person_id='"+str(self.person_id)+"';"
+        addresses = db.dbexecute(dbstring, True)
+        return addresses
