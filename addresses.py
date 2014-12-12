@@ -82,3 +82,4 @@ class Address:
             if outgoing:
                 outgoing_txs.append(tx)
         return outgoing_txs
+        

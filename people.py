@@ -1,4 +1,6 @@
 import db
+import bitcoind
+import addresses
 
 def merge_people(person_ids, cloned_person_id):
     for person_id in person_ids:
@@ -38,4 +40,32 @@ class Person:
     def addresses(self):
         dbstring = "select public_address from addresses where person_id='"+str(self.person_id)+"';"
         addresses = db.dbexecute(dbstring, True)
-        return addresses
+        results = []
+        for address in addresses:
+            results.append(address[0])
+        return results
+
+    def txs_relevant_to_person(self):
+        addresses = self.addresses()
+        txs = []
+        for address in addresses:
+            txs.append([address, bitcoind.get_address_info_blockchaininfo(address)['txs']])
+        return txs
+
+    def incoming_transactions(self, txs):
+        incoming = []
+        for x in txs:
+            address = addresses.Address(x[0])
+            tx_set = x[1]
+            incoming = incoming + address.incoming_transactions(tx_set)
+            del address
+        return incoming
+
+    def outgoing_transactions(self, txs):
+        outgoing = []
+        for x in txs:
+            address = addresses.Address(x[0])
+            tx_set = x[1]
+            outgoing = outgoing + address.outgoing_transactions(tx_set)
+            del address
+        return outgoing
