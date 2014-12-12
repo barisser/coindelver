@@ -16,18 +16,13 @@ class Transactions:
         self.maintain_outputs_addresses_new_persons()
         self.check_for_mining_transactions()
         self.merge_identities_many_inputs()
-        self.pass_on_inputs_correlations()
-        self.inherit_upstream_correlations()
+        # self.pass_on_inputs_correlations()
+        # self.inherit_upstream_correlations()
 
     def get_my_correlations():
         correlations = []
         for input in self.inputs:
             previous_output = Outputs("")
-
-    def pass_on_inputs_correlations():
-
-
-    def inherit_upstream_correlations():
 
     def maintain_outputs_addresses_new_persons(self):
         if 'prev_out' in self.inputs[0]: #make sure its not a mining transaction

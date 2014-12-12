@@ -1,5 +1,6 @@
 import db
 import people
+import bitcoind
 
 def link_addresses(addresses):
     person_ids = []
@@ -43,3 +44,41 @@ class Address:
         else:
             dbstring = "insert into addresses values ('"+str(self.public_address)+"', '"+str(self.person_id)+"', '"+str(self.bitcoin_id)+"');"
             db.dbexecute(dbstring, False)
+
+    def all_txs(self):
+        txs = bitcoind.get_address_info_blockchaininfo(self.public_address)['txs']
+        return txs
+
+    def outgoing_transactions(self, txs):  #named right
+        incoming_txs = [] #named wrong
+        for tx in txs:
+            incoming = False
+            for input in tx['inputs']:
+                if 'prev_out' in input:
+                    if 'addr' in input['prev_out']:
+                        source_address = input['prev_out']['addr']
+                        if source_address == self.public_address:
+                            incoming=True
+            if incoming:
+                incoming_txs.append(tx)
+        return incoming_txs
+
+    def incoming_transactions(self, txs):
+        outgoing_txs = []  #named wrong
+        for tx in txs:
+            outgoing = False
+            for output in tx['out']:
+                if 'addr' in output:
+                    if output['addr'] == self.public_address:
+                        outgoing=True
+
+
+            # #dont count if sent back to self
+            # for input in tx['inputs']:  #if one of the senders is ME, dont count this
+            #     if 'prev_out' in input:
+            #         if 'addr' in input['prev_out']:
+            #             if input['prev_out']['addr'] == self.public_address:
+            #                 outgoing=False
+            if outgoing:
+                outgoing_txs.append(tx)
+        return outgoing_txs

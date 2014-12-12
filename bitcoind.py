@@ -24,3 +24,9 @@ def get_block_blockchaininfo(height):
   for x in blockdata['blocks']:
     if x['main_chain']:
       return x
+
+def get_address_info_blockchaininfo(public_address):
+    api_url = 'https://blockchain.info/address/'+str(public_address)+'?format=json'
+    addressdata = requests.get(api_url).content
+    addressdata = json.loads(addressdata)
+    return addressdata
