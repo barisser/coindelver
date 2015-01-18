@@ -4,7 +4,7 @@ import os
 import db
 from requests.auth import HTTPBasicAuth
 
-url='localhost:8332'
+url='localhosy:8332'
 username='barisser'
 password='2bf763d2132a2ccf3ea38077f79196ebd600f4a29aa3b1afd96feec2e7d80beb3d9e13d02d56de0f'
 chain_api_key = 'c68b1ae1f0e763bf7867409bba0474f7'
@@ -77,5 +77,9 @@ def save_next_blocks(nblocks):
         nblocks = last_block - last_block_in_db
     next = last_block_in_db + nblocks
     for i in range(last_block_in_db+1, next+1):
-        save_txs_in_block(i)
+        try:
+            save_txs_in_block(i)
+        except:
+            print "ERROR"
+            i=i-1
         print i
