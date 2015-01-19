@@ -4,7 +4,7 @@ import os
 import db
 from requests.auth import HTTPBasicAuth
 
-url='localhosy:8332'
+url='localhost:8332'
 username='barisser'
 password='2bf763d2132a2ccf3ea38077f79196ebd600f4a29aa3b1afd96feec2e7d80beb3d9e13d02d56de0f'
 chain_api_key = 'c68b1ae1f0e763bf7867409bba0474f7'
@@ -46,26 +46,52 @@ def download_tx_chain(txhash):
     api_url = "https://api.chain.com/v2/bitcoin/transactions/"+str(txhash)+"?api-key-id="+chain_api_key
     txdata = requests.get(api_url).content
     txd = json.loads(txdata)
-    return txd
+    return tx
+
+def download_block_local_node(height):
+    blockhash = connect("getblockhash", [height])
+    blockdata = connect("getblock", [blockhash])
+    return blockdata
+
+def download_tx_local_node(txhash):
+    txdata = connect("getrawtransaction", [txhash, 1])
+    return txdata
+
+def get_input_address(inputline):
+    if 'txid' in inputline:
+        txid = inputline['txid']
+        oldtx = download_tx_local_node(txid)
+        try:
+            a = oldtx['vout'][inputline['vout']]['scriptPubKey']['addresses'][0]
+            b = oldtx['vout'][inputline['vout']]['value']*100000000
+        except:
+            a=""
+            b=-1
+    else:
+        a=""
+        b=-1
+    return a, b
 
 def save_txs_in_block(height):
-    txs = download_block_chain(height)['transaction_hashes']
+    #txs = download_block_chain(height)['transaction_hashes']
+    txs = download_block_local_node(height)['tx']
     txdata = []
     for tx in txs:
-        r = download_tx_chain(tx)
+        r = download_tx_local_node(tx)
         txdata.append(r)
-        for inp in r['inputs']:
-            if 'addresses' in inp:
-                if len(inp['addresses'])>0:
-                    input_address = inp['addresses'][0]
-                    amt = inp['value']
-                    db.add_input_tx(input_address, r['hash'], amt)
-        for outp in r['outputs']:
-            if 'addresses' in outp:
-                if len(outp['addresses'])>0:
-                    output_address = outp['addresses'][0]
-                    amt = outp['value']
-                    db.add_output_tx(output_address, r['hash'], amt)
+        for inp in r['vin']:
+            g= get_input_address(inp)
+            if g[1]>-1:
+                input_address =g[0]
+                amt =g[1]
+                db.add_input_tx(input_address, r['txid'], amt)
+        for outp in r['vout']:
+            if 'scriptPubKey' in outp:
+                if 'addresses' in outp['scriptPubKey']:
+                    if len(outp['scriptPubKey']['addresses'])>0:
+                        output_address = outp['scriptPubKey']['addresses'][0]
+                        amt = outp['value']*100000000
+                        db.add_output_tx(output_address, r['txid'], amt)
     dbstring="update meta set lastblockdone='"+str(height)+"';"
     db.dbexecute(dbstring, False)
 
@@ -77,9 +103,5 @@ def save_next_blocks(nblocks):
         nblocks = last_block - last_block_in_db
     next = last_block_in_db + nblocks
     for i in range(last_block_in_db+1, next+1):
-        try:
-            save_txs_in_block(i)
-        except:
-            print "ERROR"
-            i=i-1
+        save_txs_in_block(i)
         print i

@@ -35,8 +35,7 @@ def addresses_txs(public_address):
                 else:
                     if not input_address in inputters:
                         inputters.append(input_address)
-        if not from_me:
-            result['inputs'] = result['inputs'] + inputters
+        result['inputs'] = result['inputs'] + inputters
         for out in tx['outputs']:
             if 'addr' in out:
                 output_address = out['addresses'][0]
@@ -45,8 +44,7 @@ def addresses_txs(public_address):
                 else:
                     if not output_address in outputees:
                         outputees.append(output_address)
-        if not to_me:
-            result['outputs'] = result['outputs'] + outputees
+        result['outputs'] = result['outputs'] + outputees
     return result
 
 def addresses_txs_local(public_address):
@@ -90,8 +88,6 @@ def addresses_at_n(public_address, n):
             e=q['outputs'] + q['inputs']
             result.append(e)
     return result
-
-
 
 def record_address_correlations(public_address, n):
     data = addresses_at_n(public_address, n)
