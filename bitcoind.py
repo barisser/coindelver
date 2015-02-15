@@ -108,7 +108,7 @@ def save_txs_in_block(height):
     db.dbexecute(dbstring, False)
 
 def save_next_blocks(nblocks):
-    last_block = get_last_block()#connect("getblockcount", [])
+    last_block = 340000#get_last_block()#connect("getblockcount", [])
     last_block_in_db = db.dbexecute("select * from meta;", True)[0][0]
     if last_block - last_block_in_db < nblocks:
         nblocks = last_block - last_block_in_db
