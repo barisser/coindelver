@@ -5,7 +5,8 @@ import db
 from requests.auth import HTTPBasicAuth
 import datetime
 
-url='localhost:8332'
+#url='localhost:8332'
+url = 'http://5b478df5.ngrok.com'
 username='barisser'
 password='2bf763d2132a2ccf3ea38077f79196ebd600f4a29aa3b1afd96feec2e7d80beb3d9e13d02d56de0f'
 chain_api_key = 'c68b1ae1f0e763bf7867409bba0474f7'
