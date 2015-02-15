@@ -5,7 +5,7 @@ import hashlib
 import urlparse
 
 con=None
-databasename="postgres://ubuntu@localhost/delver"
+databasename="postgres://ubuntu:password@localhost/delver"
 urlparse.uses_netloc.append('postgres')
 url = urlparse.urlparse(databasename)
 
