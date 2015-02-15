@@ -75,7 +75,9 @@ def get_input_address(inputline):
         b=-1
     return a, b
 
-def save_txs_in_block(height):
+#def save_txs_in_block(height):
+
+def save_txs_in_block_chain(height):
     txs = download_block_chain(height)['transaction_hashes']
     #txs = download_block_local_node(height)['tx']
     txdata = []
@@ -115,6 +117,17 @@ def save_next_blocks(nblocks):
     next = last_block_in_db + nblocks
     for i in range(last_block_in_db+1, next+1):
         save_txs_in_block(i)
+
+def get_block_blockchain(height):
+    url = "https://blockchain.info/block-height/"+str(height)+"?format=json"
+    a=requests.get(url)
+    b = json.loads(a.content)
+    b=b['blocks']
+    d = -1
+    for x in b:
+        if x['main_chain']:
+            d = x
+    return d
 
 def get_tx_outputs(txhash):
     txdata = download_tx_local_node(txhash)
