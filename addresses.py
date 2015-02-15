@@ -23,3 +23,14 @@ class Address:
         else:
             dbstring = "insert into addresses values ('"+str(self.public_address)+"');"
             db.dbexecute(dbstring, False)
+
+
+def txs_pertaining_to_address(address):
+    inputted = db.dbexecute("select * from inputs where public_address='"+str(address)+"';", True)
+    outputted = db.dbexecute("select * from outputs where public_address='"+str(address)+"';", True)
+    txs = []
+    for tx in inputted:
+        txs.append(tx[1])
+    for tx in outputted:
+        txs.append(tx[1])
+    return txs

@@ -3,6 +3,7 @@ import json
 import os
 import db
 from requests.auth import HTTPBasicAuth
+import datetime
 
 url='localhost:8332'
 username='barisser'
@@ -51,6 +52,7 @@ def download_tx_chain(txhash):
 def download_block_local_node(height):
     blockhash = connect("getblockhash", [height])
     blockdata = connect("getblock", [blockhash])
+    print str(height)+ "    "+str(datetime.datetime.fromtimestamp(int(blockdata['time'])).strftime("%Y-%m-%d %H:%M:%S"))+"    "+str(len(blockdata['tx']))
     return blockdata
 
 def download_tx_local_node(txhash):
@@ -76,6 +78,9 @@ def save_txs_in_block(height):
     #txs = download_block_chain(height)['transaction_hashes']
     txs = download_block_local_node(height)['tx']
     txdata = []
+    inputs = []
+    outputs = []
+    queued_input_checks = []
     for tx in txs:
         r = download_tx_local_node(tx)
         txdata.append(r)
@@ -84,17 +89,23 @@ def save_txs_in_block(height):
             if g[1]>-1:
                 input_address =g[0]
                 amt =g[1]
-                db.add_input_tx(input_address, r['txid'], amt)
+                db.add_input_tx(input_address, r['txid'], amt, height)
+                queued_input_checks.append([inp['txid'], inp['vout'], r['txid']])
+
         for outp in r['vout']:
             if 'scriptPubKey' in outp:
                 if 'addresses' in outp['scriptPubKey']:
                     if len(outp['scriptPubKey']['addresses'])>0:
                         output_address = outp['scriptPubKey']['addresses'][0]
                         amt = outp['value']*100000000
-                        db.add_output_tx(output_address, r['txid'], amt)
+                        db.add_output_tx(output_address, r['txid'], amt, height)
+                        db.add_tx_output(r['txid'], outp['n'], False, '', height, -1, amt)
+
+    for a in queued_input_checks:
+        db.spent_tx_output(a[0], a[1], a[2], height)
+
     dbstring="update meta set lastblockdone='"+str(height)+"';"
     db.dbexecute(dbstring, False)
-
 
 def save_next_blocks(nblocks):
     last_block = connect("getblockcount", [])
@@ -104,4 +115,18 @@ def save_next_blocks(nblocks):
     next = last_block_in_db + nblocks
     for i in range(last_block_in_db+1, next+1):
         save_txs_in_block(i)
-        print i
+
+def get_tx_outputs(txhash):
+    txdata = download_tx_local_node(txhash)
+    results = []
+    for x in txdata['vout']:
+        y= {}
+        y['value'] = x['value'] * 100000000
+        if 'scriptPubKey' in x:
+            if 'addresses' in x['scriptPubKey']:
+                if len(x['scriptPubKey']['addresses'])>0:
+                    y['address'] = x['scriptPubKey']['addresses'][0]
+
+
+def get_tx_inputs(txhash):
+    download_tx_local_node(txhash)

@@ -47,25 +47,36 @@ def addresses_txs(public_address):
         result['outputs'] = result['outputs'] + outputees
     return result
 
-def addresses_txs_local(public_address):
+def addresses_txs_local(public_address, parent):
     result = {}
     result['inputs'] = addresses_backwards_local(public_address)
     result['outputs'] = addresses_forward_local(public_address)
 
     a=[]
     for x in result['inputs']:
-        b=searchAddress(x, public_address)
-        a.append(b)
+        if not x==parent:
+            b=searchAddress(x, public_address)
+            a.append(b)
+        else:
+            print "Intercepted PARENT "+str(parent)
     q=[]
     for x in result['outputs']:
-        c=searchAddress(x, public_address)
-        q.append(c)
+        if not x==parent:
+            c=searchAddress(x, public_address)
+            q.append(c)
+        else:
+            print "Intercepted Parent "+str(parent)
     result['inputs'] = a
     result['outputs'] = q
+
     return result
 
-def assign_weights(source_address, other_address, generations, occurrences, other_multiplier):
+def scoring_equation(generations, occurrences, other_multiplier):
     weight = 1.0 / float(generations) * math.pow(2, occurrences) * other_multiplier
+    return weight
+
+def assign_weights(source_address, other_address, generations, occurrences, other_multiplier):
+    weight = scoring_equation(generations, occurrences, other_multiplier)
     connect_addresses(other_address, source_address, weight)
 
 class searchAddress:
@@ -73,21 +84,93 @@ class searchAddress:
         self.public_address = public_address
         self.parent_address = parent_address
 
+def iterate_once(all_generations, last_score_set, appearance_count, limit_n): #not the first time here
+    last_generation = all_generations[len(all_generations)-1]  #list of searchAddress objects
+    parents = {}   #NEEDS WORK HERE
+    for y in last_generation:
+        parents[y.public_address] = y.parent_address
+    last_generation_scores = {}
+    for x in last_generation:
+        last_generation_scores[x.public_address] = last_score_set[x.public_address]
+    top_few = sorted(last_generation_scores, key=last_generation_scores.get)[::-1]
+    gen=[]
+    if len(top_few)<limit_n:
+        k=0 #do nothing
+    else:
+        top_few = top_few[0:limit_n]
+    for x in top_few:
+        parent = ""
+        if x in parents:
+            parent = parents[x]  #NEEDS WORK HERE
+            print "PARENT "+str(parent)
+        r = addresses_txs_local(x, parent)   #NEEDS WORK HERE< NOT EVEN SURE IF PARENT THING IS WORKING
+        neighbors = r['inputs'] + r['outputs']
+        gen = gen + neighbors
+        #add to scoreset
+        for y in neighbors:
+            if y.public_address in appearance_count:
+                appearance_count[y.public_address] += 1
+            else:
+                appearance_count[y.public_address] = 1
+            #MAKE THIS MORE EFFICIENT?
+            last_score_set[y.public_address] = scoring_equation(len(all_generations), appearance_count[y.public_address], 1.0)
+    all_generations.append(gen)
+    return all_generations, last_score_set, appearance_count
+
+
+def correlations(public_address, n, limit_n):
+    score = {}
+    generations = [] #running tally non-scored
+    appearance = {}
+    for i in range(n):
+        if i>0:
+            a = iterate_once(generations, score, appearance, limit_n)
+            generations = a[0]
+            score = a[1]
+            appearance = a[2]
+        else:
+            r = addresses_txs_local(public_address, '')
+            r=r['inputs']+r['outputs']
+            generations.append(r)
+            for x in r:
+                if x.public_address in appearance:
+                    appearance[x.public_address] += 1
+                else:
+                    appearance[x.public_address] = 1
+            for k, v in appearance.iteritems():
+                score[k] = scoring_equation(1, v, 1.0)
+    return score, generations, appearance
+
+def address_blacklisted(public_address):
+    r = db.dbexecute("select count(*) from blacklisted_addresses where public_address='""+str(public_address)+';",True)
+    if r[0][0] > 0:
+        return True
+    else:
+        return False
+
 def addresses_at_n(public_address, n):
     result=[]
     for i in range(n):
         if i>0:
             addrs = result[i-1]
+            newaddrs = []
             for addr in addrs:
-                newaddrs = []
-                r=addresses_txs_local(addr.public_address)
-                caddrs = r['inputs'] + r['outputs']
-            result.append(caddrs)
+                r=addresses_txs_local(addr.public_address, addr.parent_address)
+                newaddrs = newaddrs + r['inputs'] + r['outputs']
+            result.append(newaddrs)
         else:
-            q=addresses_txs_local(public_address)
+            q=addresses_txs_local(public_address, "")
             e=q['outputs'] + q['inputs']
             result.append(e)
     return result
+
+def delete_address_correlations_on_address(public_address):
+    db.dbexecute("delete from address_address_correlation * where from_address='"+str(public_address)+"';",False)
+
+def get_temporary_address_correlations(public_address, depth):
+    a = record_address_correlations(public_address, depth)
+    delete_address_correlations_on_address(public_address)
+    return a
 
 def record_address_correlations(public_address, n):
     data = addresses_at_n(public_address, n)
@@ -125,7 +208,7 @@ def upstream_txs_on_address(public_address):
     if len(results)>0:
         for x in results:
             txs.append(x[1])
-    txs = list(set(txs)) #removes duplicates from db saving errors
+    #txs = list(set(txs)) #removes duplicates from db saving errors
     return txs
 
 def downstream_txs_on_address(public_address):
@@ -135,7 +218,7 @@ def downstream_txs_on_address(public_address):
     if len(results)>0:
         for x in results:
             txs.append(x[1])
-    txs = list(set(txs)) #removes duplicates from db saving errors
+    #txs = list(set(txs)) #removes duplicates from db saving errors
     return txs
 
 def addresses_forward_local(public_address):
