@@ -45,6 +45,7 @@ def download_block_chain(height):
     api_url = "https://api.chain.com/v2/bitcoin/blocks/"+str(height)+"?api-key-id="+chain_api_key
     blockdata = requests.get(api_url).content
     bd = json.loads(blockdata)
+    print str(height)+ "    "+str(blockdata['time'])+"    "+str(len(blockdata['transaction_hashes']))
     return bd
 
 def download_tx_chain(txhash):
