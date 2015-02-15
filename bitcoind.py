@@ -37,6 +37,9 @@ def get_address_info_local(public_address):
     dbstring = "select txhash from outputs where public_address='"+str(public_address)+"';"
     result = db.dbexecute(dbstring, True)
 
+def get_last_block():
+    a = requests.get("https://blockchain.info/q/getblockcount")
+    return int(a.content)
 
 def download_block_chain(height):
     api_url = "https://api.chain.com/v2/bitcoin/blocks/"+str(height)+"?api-key-id="+chain_api_key
@@ -48,7 +51,7 @@ def download_tx_chain(txhash):
     api_url = "https://api.chain.com/v2/bitcoin/transactions/"+str(txhash)+"?api-key-id="+chain_api_key
     txdata = requests.get(api_url).content
     txd = json.loads(txdata)
-    return tx
+    return txd
 
 def download_block_local_node(height):
     blockhash = connect("getblockhash", [height])
@@ -61,46 +64,41 @@ def download_tx_local_node(txhash):
     return txdata
 
 def get_input_address(inputline):
-    if 'txid' in inputline:
-        txid = inputline['txid']
-        oldtx = download_tx_local_node(txid)
-        try:
-            a = oldtx['vout'][inputline['vout']]['scriptPubKey']['addresses'][0]
-            b = oldtx['vout'][inputline['vout']]['value']*100000000
-        except:
-            a=""
-            b=-1
+    a=""
+    b=-1
+    if 'addresses' in inputline:
+        a = inputline['addresses'][0]
+        b = inputline['value']
     else:
         a=""
         b=-1
     return a, b
 
 def save_txs_in_block(height):
-    #txs = download_block_chain(height)['transaction_hashes']
-    txs = download_block_local_node(height)['tx']
+    txs = download_block_chain(height)['transaction_hashes']
+    #txs = download_block_local_node(height)['tx']
     txdata = []
     inputs = []
     outputs = []
     queued_input_checks = []
     for tx in txs:
-        r = download_tx_local_node(tx)
+        #r = download_tx_local_node(tx)
+        r = download_tx_chain(tx)
         txdata.append(r)
-        for inp in r['vin']:
+        for inp in r['inputs']:
             g= get_input_address(inp)
             if g[1]>-1:
                 input_address =g[0]
                 amt =g[1]
-                db.add_input_tx(input_address, r['txid'], amt, height)
-                queued_input_checks.append([inp['txid'], inp['vout'], r['txid']])
+                db.add_input_tx(input_address, r['hash'], amt, height)
+                queued_input_checks.append([inp['output_hash'], inp['output_index'], r['hash']])
 
-        for outp in r['vout']:
-            if 'scriptPubKey' in outp:
-                if 'addresses' in outp['scriptPubKey']:
-                    if len(outp['scriptPubKey']['addresses'])>0:
-                        output_address = outp['scriptPubKey']['addresses'][0]
-                        amt = outp['value']*100000000
-                        db.add_output_tx(output_address, r['txid'], amt, height)
-                        db.add_tx_output(r['txid'], outp['n'], False, '', height, -1, amt)
+        for outp in r['outputs']:
+            if 'addresses' in outp:
+                output_address = outp['addresses'][0]
+                amt = outp['value']
+                db.add_output_tx(output_address, r['hash'], amt, height)
+                db.add_tx_output(r['hash'], outp['output_index'], False, '', height, -1, amt)
 
     for a in queued_input_checks:
         db.spent_tx_output(a[0], a[1], a[2], height)
@@ -109,7 +107,7 @@ def save_txs_in_block(height):
     db.dbexecute(dbstring, False)
 
 def save_next_blocks(nblocks):
-    last_block = connect("getblockcount", [])
+    last_block = get_last_block()#connect("getblockcount", [])
     last_block_in_db = db.dbexecute("select * from meta;", True)[0][0]
     if last_block - last_block_in_db < nblocks:
         nblocks = last_block - last_block_in_db
