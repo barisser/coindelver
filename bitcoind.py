@@ -75,27 +75,27 @@ def get_input_address(inputline):
         b=-1
     return a, b
 
-def save_txs_in_block_blockchain(height):
-    block = get_block_blockchain(height)
-    txs = block['tx']
-
-    queued_input_checks = []
-
-    for tx in txs:
-        tx_hash = tx['hash']
-        if 'inputs' in tx:
-            inputs = tx['inputs']
-            for input in inputs:
-                if 'prev_out' in input:
-                    input_address = input['prev_out']['addr']
-                    input_value = input['prev_out']['value']
-                    output_hash =
-                    output_index =
-                db.add_input_tx(input_address, tx_hash, input_value, height)
-                queued_input_checks.append([output_hash, output_index, tx_hash])
-
-    dbstring="update meta set lastblockdone='"+str(height)+"';"
-    db.dbexecute(dbstring, False)
+# def save_txs_in_block_blockchain(height):
+#     block = get_block_blockchain(height)
+#     txs = block['tx']
+#
+#     queued_input_checks = []
+#
+#     for tx in txs:
+#         tx_hash = tx['hash']
+#         if 'inputs' in tx:
+#             inputs = tx['inputs']
+#             for input in inputs:
+#                 if 'prev_out' in input:
+#                     input_address = input['prev_out']['addr']
+#                     input_value = input['prev_out']['value']
+#                     output_hash =
+#                     output_index =
+#                 db.add_input_tx(input_address, tx_hash, input_value, height)
+#                 queued_input_checks.append([output_hash, output_index, tx_hash])
+#
+#     dbstring="update meta set lastblockdone='"+str(height)+"';"
+#     db.dbexecute(dbstring, False)
 
 def save_txs_in_block(height):
     txs = download_block_chain(height)['transaction_hashes']
