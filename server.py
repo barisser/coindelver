@@ -54,4 +54,4 @@ def correlations_on_address(public_address = None, depth = None):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
