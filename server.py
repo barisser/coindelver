@@ -53,5 +53,5 @@ def correlations_on_address(public_address = None, depth = None):
     return response
 
 
-if __name__ == '__main__':
+if __name__ == '__server__':
     app.run(host='0.0.0.0')
