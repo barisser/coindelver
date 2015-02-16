@@ -5,6 +5,7 @@ from flask import make_response
 import json
 import db
 import addresses
+import bitcoind
 import process
 
 app = Flask(__name__)
@@ -15,6 +16,13 @@ def something():
   response=make_response("Hey there!", 200)
   response.headers['Access-Control-Allow-Origin']= '*'
   return response
+
+@app.route('/bitcoin/lastblock')
+def last_block_bitcoin():
+    lastblock = bitcoind.connect("getblockcount", [])
+    response=make_response(str(lastblock), 200)
+    response.headers['Access-Control-Allow-Origin']= '*'
+    return response
 
 @app.route('/meta/lastblock')
 def last_block_updated():
