@@ -97,7 +97,7 @@ def get_input_address(inputline):
 #     db.dbexecute(dbstring, False)
 
 def save_txs_in_block(height):
-   txs = download_block_local_node(height)['tx']
+    txs = download_block_local_node(height)['tx']
     txdata = []
     inputs = []
     outputs = []
