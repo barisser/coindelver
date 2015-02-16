@@ -5,9 +5,9 @@ import db
 from requests.auth import HTTPBasicAuth
 import datetime
 
-#url='localhost:8332'
-username='bitcoinrpc'
-password='838DiHcn25K91kFD5iKSzBzNuozJnB7EpVjCh5kwff8z'
+url='localhost:8332'
+username='coindelve'
+password='9f496022ac6eabb586e7a848256eaec56d3fde265cbf828780d70c8ad3b478fd'
 chain_api_key = 'c68b1ae1f0e763bf7867409bba0474f7'
 
 def connect(method,body):
