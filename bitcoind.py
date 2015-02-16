@@ -6,9 +6,8 @@ from requests.auth import HTTPBasicAuth
 import datetime
 
 #url='localhost:8332'
-url = '5b478df5.ngrok.com'
-username='barisser'
-password='2bf763d2132a2ccf3ea38077f79196ebd600f4a29aa3b1afd96feec2e7d80beb3d9e13d02d56de0f'
+username='bitcoinrpc'
+password='838DiHcn25K91kFD5iKSzBzNuozJnB7EpVjCh5kwff8z'
 chain_api_key = 'c68b1ae1f0e763bf7867409bba0474f7'
 
 def connect(method,body):
@@ -98,30 +97,30 @@ def get_input_address(inputline):
 #     db.dbexecute(dbstring, False)
 
 def save_txs_in_block(height):
-    txs = download_block_chain(height)['transaction_hashes']
-    #txs = download_block_local_node(height)['tx']
+   txs = download_block_local_node(height)['tx']
     txdata = []
     inputs = []
     outputs = []
     queued_input_checks = []
     for tx in txs:
-        #r = download_tx_local_node(tx)
-        r = download_tx_chain(tx)
+        r = download_tx_local_node(tx)
         txdata.append(r)
-        for inp in r['inputs']:
+        for inp in r['vin']:
             g= get_input_address(inp)
             if g[1]>-1:
                 input_address =g[0]
                 amt =g[1]
-                db.add_input_tx(input_address, r['hash'], amt, height)
-                queued_input_checks.append([inp['output_hash'], inp['output_index'], r['hash']])
+                db.add_input_tx(input_address, r['txid'], amt, height)
+                queued_input_checks.append([inp['txid'], inp['vout'], r['txid']])
 
-        for outp in r['outputs']:
-            if 'addresses' in outp:
-                output_address = outp['addresses'][0]
-                amt = outp['value']
-                db.add_output_tx(output_address, r['hash'], amt, height)
-                db.add_tx_output(r['hash'], outp['output_index'], False, '', height, -1, amt)
+        for outp in r['vout']:
+            if 'scriptPubKey' in outp:
+                if 'addresses' in outp['scriptPubKey']:
+                    if len(outp['scriptPubKey']['addresses'])>0:
+                        output_address = outp['scriptPubKey']['addresses'][0]
+                        amt = outp['value']*100000000
+                        db.add_output_tx(output_address, r['txid'], amt, height)
+                        db.add_tx_output(r['txid'], outp['n'], False, '', height, -1, amt)
 
     for a in queued_input_checks:
         db.spent_tx_output(a[0], a[1], a[2], height)
