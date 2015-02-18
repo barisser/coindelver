@@ -24,9 +24,11 @@ def last_block_bitcoin():
     response.headers['Access-Control-Allow-Origin']= '*'
     return response
 
-@app.route('/meta/lastblock')
+@app.route('/meta')
 def last_block_updated():
     lastblock = db.dbexecute("select * from meta;",True)
+    d = {}
+    d['last_block'] = str(lastblock[0][0])
     response=make_response(str(lastblock[0][0]), 200)
     response.headers['Content-Type'] = 'application/json'
     response.headers['Access-Control-Allow-Origin']= '*'

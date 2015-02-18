@@ -4,6 +4,7 @@ import os
 import db
 from requests.auth import HTTPBasicAuth
 import datetime
+from time import sleep
 
 url='localhost:8332'
 username='coindelve'
@@ -14,6 +15,7 @@ def connect(method,body):
   node_url='http://'+url#+':'+node_port
   headers={'content-type':'application/json'}
   payload=json.dumps({'method':method,'params':body})
+  sleep(0.05)
   result=requests.get(node_url,headers=headers,data=payload, verify=False, auth=HTTPBasicAuth(username, password))
 
   response=json.loads(result.content)
