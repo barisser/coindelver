@@ -17,6 +17,20 @@ def something():
   response.headers['Access-Control-Allow-Origin']= '*'
   return response
 
+@app.route('/status')
+def status():
+    jsonresponse={}
+    try:
+        jsonresponse['bitcoind_last_block']=bitcoind.connect("getblockcount", [])
+    except:
+        jsonresponse['bitcoind_last_block'] = "BITCOIND DOWN"
+    jsonresponse['lastblock_processed'] = db.dbexecute("select * from meta;", True)
+    jsonresponse=json.dumps(jsonresponse)
+    response=make_response(str(jsonresponse), 200)
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Access-Control-Allow-Origin']= '*'
+    return response
+
 @app.route('/bitcoin/lastblock')
 def last_block_bitcoin():
     lastblock = bitcoind.connect("getblockcount", [])
