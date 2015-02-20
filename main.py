@@ -24,7 +24,7 @@ def status():
         jsonresponse['bitcoind_last_block']=bitcoind.connect("getblockcount", [])
     except:
         jsonresponse['bitcoind_last_block'] = "BITCOIND DOWN"
-    jsonresponse['lastblock_processed'] = db.dbexecute("select * from meta;", True)
+    jsonresponse['lastblock_processed'] = str(db.dbexecute("select * from meta;", True)[0][0])
     jsonresponse=json.dumps(jsonresponse)
     response=make_response(str(jsonresponse), 200)
     response.headers['Content-Type'] = 'application/json'
