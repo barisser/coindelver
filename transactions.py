@@ -81,4 +81,3 @@ def check_for_special_output(height, txhash, special_output, special_output_inde
     if special_output_in_tx:
       newoutput = txhash
       newoutput_index = special_output_position
-  

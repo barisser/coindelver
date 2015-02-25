@@ -5,13 +5,13 @@ import hashlib
 import urlparse
 
 con=None
-databasename="postgres://barisser:password@localhost:5432/coindelve"
+databasename="postgres://barisser:password@localhost/delver"
 urlparse.uses_netloc.append('postgres')
 url = urlparse.urlparse(databasename)
 
-
 def dbexecute(sqlcommand, receiveback):
   #username=''
+  #print sqlcommand
   con=psycopg2.connect(database= url.path[1:], user=url.username, password=url.password, host=url.hostname, port=url.port)
   result=''
   cur=con.cursor()
@@ -23,13 +23,23 @@ def dbexecute(sqlcommand, receiveback):
   con.close()
   return result
 
-def add_new_person(public_address):
-  random_id = generate_new_id()
-  dbexecute("insert into persons values ('"+random_id+"', '', '');", False)
-  dbexecute("update addresses set person_id = '"+str(random_id)+"' where public_address='"+str(public_address)+"';", False)
+def add_input_tx(input_address, tx_hash, amount, height):
+    dbstring = "insert into inputs values ('"+str(input_address)+"', '"+str(tx_hash)+"', '"+str(amount)+"', '"+str(height)+"');"
+    dbexecute(dbstring, False)
 
-def identify_person(public_address, name):
-  preexisting_id = dbexecute("select person_id from addresses where public_address='"+str(public_address)+"';",True)
-  if len(preexisting_id)==0:
-    add_new_person(public_address)
-    dbexecute("update people set nane = '"+str(name)+"' where public_address='"+str(public_address)+"';",False)
+def add_output_tx(output_address, tx_hash, amount, height):
+    dbstring = "insert into outputs values ('"+str(output_address)+"', '"+str(tx_hash)+"', '"+str(amount)+"', '"+str(height)+"');"
+    dbexecute(dbstring, False)
+
+def add_tx_output(txhash, index, spent, spent_at_txhash, height, height_spent, amount):
+    dbstring = "insert into tx_outputs values ('"+str(txhash)+"', "+str(index)+", '"+str(spent)+"', '"+str(spent_at_txhash)+"', "+str(height)+", "+str(height_spent)+", "+str(amount)+");"
+    dbexecute(dbstring, False)
+
+def spent_tx_output(txhash, index, spent_at_txhash, height_spent):
+    dbstring = "update tx_outputs set spent=True, spent_at_txhash='"+str(spent_at_txhash)+"', height_spent="+str(height_spent)+" where txhash='"+str(txhash)+"' and index='"+str(index)+"';"
+    dbexecute(dbstring, False)
+
+def select_tx_output(txhash):
+    dbstring = "select * from tx_outputs where txhash='"+str(txhash)+"';"
+    results = dbexecute(dbstring, True)
+    return results
