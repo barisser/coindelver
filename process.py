@@ -242,3 +242,20 @@ def addresses_backwards_local(public_address):
             for x in r:
                 addresses.append(x[0])
     return addresses
+
+def write_header(height):
+    n = bitcoind.connect("getblockhash", [height])
+    db.add_header(n, '', height)
+
+def write_headers():
+    n = bitcoind.connect("getblockcount", [])
+    m = db.last_header()
+
+    if n - m > 1000:
+      r = 1000
+    else:
+      r = n-m
+
+    for i in range(m, m+r):
+      write_header(i)
+      print "wrote header: "+str(i)

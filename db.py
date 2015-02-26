@@ -43,3 +43,24 @@ def select_tx_output(txhash):
     dbstring = "select * from tx_outputs where txhash='"+str(txhash)+"';"
     results = dbexecute(dbstring, True)
     return results
+
+def add_header(hash, prev_hash, height):
+    dbstring = "insert into headers values ('"+str(hash)+"', '"+str(prev_hash)+"', "+str(height)+");"
+    dbexecute(dbstring, False)
+
+def check_header(hash):
+    dbstring = "select count(*) from headers where hash='"+str(hash)+"';"
+    a = dbexecute(dbstring, True)
+    if a[0][0] > 0:
+      return True
+    else:
+      return False
+
+def last_header():
+    dbstring = "select * from headers order by height desc limit 1;"
+    a = dbexecute(dbstring, True)
+    if len(a)>0:
+      b = a[0][0]
+    else:
+      b=-1
+    return b
