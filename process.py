@@ -256,6 +256,6 @@ def write_headers(j):
     else:
       r = n-m
 
-    for i in range(m, m+r):
+    for i in range(m + 1, m+r):
       write_header(i)
       print "wrote header: "+str(i)
