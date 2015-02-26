@@ -9,3 +9,4 @@ while True:
 
     if last_block_meta < last_block_node-100:
         bitcoind.save_next_blocks(100)
+        process.write_headers(1000)

@@ -247,12 +247,12 @@ def write_header(height):
     n = bitcoind.connect("getblockhash", [height])
     db.add_header(n, '', height)
 
-def write_headers():
+def write_headers(j):
     n = bitcoind.connect("getblockcount", [])
     m = db.last_header()
 
-    if n - m > 1000:
-      r = 1000
+    if n - m > j:
+      r = j
     else:
       r = n-m
 

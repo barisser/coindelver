@@ -25,6 +25,7 @@ def status():
     except:
         jsonresponse['bitcoind_last_block'] = "BITCOIND DOWN"
     jsonresponse['lastblock_processed'] = str(db.dbexecute("select * from meta;", True)[0][0])
+    jsonresponse['last_header_height'] = str(db.last_header())
     jsonresponse=json.dumps(jsonresponse)
     response=make_response(str(jsonresponse), 200)
     response.headers['Content-Type'] = 'application/json'
