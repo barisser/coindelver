@@ -60,7 +60,7 @@ def last_header():
     dbstring = "select * from headers order by height desc limit 1;"
     a = dbexecute(dbstring, True)
     if len(a)>0:
-      b = a[0][0]
+      b = a[0][2]
     else:
       b=-1
     return b
