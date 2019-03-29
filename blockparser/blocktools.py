@@ -1,5 +1,6 @@
 from blocktools import *
 
+
 class BlockHeader:
 	def __init__(self, blockchain):
 		self.version = uint4(blockchain)
@@ -15,6 +16,7 @@ class BlockHeader:
 		print "Time\t\t %s" % str(self.time)
 		print "Difficulty\t %8x" % self.bits
 		print "Nonce\t\t %s" % self.nonce
+
 
 class Block:
 	def __init__(self, blockchain):
@@ -42,6 +44,7 @@ class Block:
 		print "##### Tx Count: %d" % self.txCount
 		for t in self.Txs:
 			t.toString()
+
 
 class Tx:
 	def __init__(self, blockchain):
@@ -87,6 +90,7 @@ class txInput:
 		print "Script Length:\t %d" % self.scriptLen
 		print "Script Sig:\t %s" % hashStr(self.scriptSig)
 		print "Sequence:\t %8x" % self.seqNo
+
 
 class txOutput:
 	def __init__(self, blockchain):
