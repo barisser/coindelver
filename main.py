@@ -11,11 +11,13 @@ import process
 app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS']=True
 
+
 @app.route('/')
 def something():
   response=make_response("Hey there!", 200)
   response.headers['Access-Control-Allow-Origin']= '*'
   return response
+
 
 @app.route('/status')
 def status():
@@ -32,12 +34,14 @@ def status():
     response.headers['Access-Control-Allow-Origin']= '*'
     return response
 
+
 @app.route('/bitcoin/lastblock')
 def last_block_bitcoin():
     lastblock = bitcoind.connect("getblockcount", [])
     response=make_response(str(lastblock), 200)
     response.headers['Access-Control-Allow-Origin']= '*'
     return response
+
 
 @app.route('/meta')
 def last_block_updated():
@@ -48,6 +52,7 @@ def last_block_updated():
     response.headers['Content-Type'] = 'application/json'
     response.headers['Access-Control-Allow-Origin']= '*'
     return response
+
 
 @app.route('/address/<public_address>/txs')
 def txs_on_address(public_address = None):
@@ -60,6 +65,7 @@ def txs_on_address(public_address = None):
     response.headers['Content-Type'] = 'application/json'
     response.headers['Access-Control-Allow-Origin']= '*'
     return response
+
 
 @app.route('/address/<public_address>/<depth>')
 def correlations_on_address(public_address = None, depth = None):
