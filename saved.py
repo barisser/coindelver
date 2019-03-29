@@ -3,12 +3,14 @@ import os
 
 hashes_to_store=1000
 
+
 class hash:
   def __init__(self, hash, previoushash, nexthash, height):
     self.hash=hash
     self.previoushash=previoushash
     self.nexthash=nexthash
     self.height=height
+
 
 def load_last_n_hashes(n):
   filename='blockhashes.txt'
@@ -31,6 +33,7 @@ def load_last_n_hashes(n):
   file.close()
   return results
 
+
 def find_hash(height):   #WORKS IF ALL BLOCKHASHES STORED IN FILE
                           #ASSUMES BLOCKS ARE IN ORDER WITH NO ERRORS IN ORDER
   filename='blockhashes.txt'
@@ -49,6 +52,7 @@ def find_hash(height):   #WORKS IF ALL BLOCKHASHES STORED IN FILE
   buffhash_height = int(file.read(8))
   newhash = hash(buffhash_current, buffhash_prev, buffhash_next, buffhash_height)
   return newhash
+
 
 def load_hashes():
   filename='blockhashes.txt'
@@ -69,6 +73,7 @@ def load_hashes():
     results.append(newhash)
   file.close()
   return results
+
 
 def add_hashes(hashes):
   filename='blockhashes.txt'
@@ -95,6 +100,7 @@ def add_hashes(hashes):
   file.write(data_to_write)
   file.close()
 
+
 def stitch():
   filename='blockhashes.txt'
   filesize = os.path.getsize(filename)
@@ -117,6 +123,7 @@ def stitch():
     previous_next_hash = file.read(64)
 
   file.close()
+
 
 def save_hashes(hashes):
   filename='blockhashes.txt'
