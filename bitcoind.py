@@ -11,12 +11,12 @@ username='coindelve'
 password='9f496022ac6eabb586e7a848256eaec56d3fde265cbf828780d70c8ad3b478fd'
 chain_api_key = 'c68b1ae1f0e763bf7867409bba0474f7'
 
-def connect(method,body):
+def connect(method, body):
   node_url='http://'+url#+':'+node_port
-  headers={'content-type':'application/json'}
-  payload=json.dumps({'method':method,'params':body})
+  headers={'content-type': 'application/json'}
+  payload=json.dumps({'method': method, 'params': body})
   sleep(0.05)
-  result=requests.get(node_url,headers=headers,data=payload, verify=False, auth=HTTPBasicAuth(username, password))
+  result=requests.get(node_url, headers=headers, data=payload, verify=False, auth=HTTPBasicAuth(username, password))
 
   response=json.loads(result.content)
   return response['result']
