@@ -9,14 +9,18 @@ import saved
 prev_genesis_hash='0000000000000000000000000000000000000000000000000000000000000000'
 genesis_hash='000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'
 
+
 def get_block_count():
   return bitcoind.connect('getblockcount',[])
+
 
 def get_best_block_hash():
   return bitcoind.connect('getbestblockhash', [])
 
+
 def get_block_from_hash(blockhash):
   return bitcoind.connect('getblock',[blockhash])
+
 
 def check_block_legitimacy(blockhash, previous_block_hash, version):
   theblock = get_block_from_hash(blockhash)
@@ -33,6 +37,7 @@ def check_block_legitimacy(blockhash, previous_block_hash, version):
     return veracity, newblockhash
   else:
     return veracity, ""
+
 
 def backtrace_blocks(known_block_hashes, proposed_block_hash, maximum_attempts):
   lasthash= proposed_block_hash
@@ -76,6 +81,7 @@ def backtrace_blocks(known_block_hashes, proposed_block_hash, maximum_attempts):
     if n>=maximum_attempts:
       return False, []
 
+
 def get_next_block(current_block_hash):
   current_block = get_block_from_hash(current_block_hash)
   current_height = current_block['height']
@@ -115,6 +121,7 @@ def build_block(last_block):
     new_block_hash = nextblock[1]
     new_block = saved.hash(new_block_hash, last_block_hash, None, last_block_height+1)
   return new_block
+
 
 def build_blocks(blockn):
   block_hashes = saved.load_last_n_hashes(1000)
