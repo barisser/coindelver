@@ -3,12 +3,15 @@ import db
 import random
 import hashlib
 
+
 def get_txs(height):
   blockdata = bitcoind.get_block_blockchaininfo(height)
   return blockdata['tx']
 
+
 def generate_new_id():
   return hashlib.sha256(str(random.random())).hexdigest()
+
 
 def assign_new_id_to_mined(tx, height):
   if not 'prev_out' in tx['inputs'][0]:
@@ -25,6 +28,7 @@ def assign_new_id_to_mined(tx, height):
       print dbstring
       db.dbexecute(dbstring,False)
 
+
 def link_inputs(tx, height):
   ins = []
   for x in tx['inputs']:
@@ -32,19 +36,23 @@ def link_inputs(tx, height):
       ins.append(x['prev_out']['addr'])
   link_addresses(ins, height)
 
+
 def link_inputs_in_block(height, txs):
   for tx in txs:
     link_inputs(tx, height)
+
 
 def mined_tx_in_block(txs, height):
   for tx in txs:
     if not 'prev_out' in tx['inputs'][0]:
       assign_new_id_to_mined(tx, height)
 
+
 def process_block(height):
   txs = get_txs(height)
   link_inputs_in_block(height, txs)
   mined_tx_in_block(txs, height)
+
 
 def process_blocks_in_range(start_height, last_height):
   for i in range(start_height, last_height+1):
