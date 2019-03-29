@@ -2,9 +2,11 @@ import bitcoind
 import db
 import math
 
+
 def all_txs_on_address(public_address):
         txs = bitcoind.get_address_info_chain(public_address)
         return txs
+
 
 def connect_addresses(from_address, to_address, weight):
     dbstring = "select * from address_address_correlation where from_address='"+str(from_address)+"' and to_address='"+str(to_address)+"';"
@@ -16,6 +18,7 @@ def connect_addresses(from_address, to_address, weight):
     else:
         dbstring = "insert into address_address_correlation values ('"+str(from_address)+"', '"+str(to_address)+"', '"+str(weight)+"');"
     db.dbexecute(dbstring, False)
+
 
 def addresses_txs(public_address):
     txs = all_txs_on_address(public_address)
@@ -47,6 +50,7 @@ def addresses_txs(public_address):
         result['outputs'] = result['outputs'] + outputees
     return result
 
+
 def addresses_txs_local(public_address, parent):
     result = {}
     result['inputs'] = addresses_backwards_local(public_address)
@@ -71,18 +75,22 @@ def addresses_txs_local(public_address, parent):
 
     return result
 
+
 def scoring_equation(generations, occurrences, other_multiplier):
     weight = 1.0 / float(generations) * math.pow(2, occurrences) * other_multiplier
     return weight
+
 
 def assign_weights(source_address, other_address, generations, occurrences, other_multiplier):
     weight = scoring_equation(generations, occurrences, other_multiplier)
     connect_addresses(other_address, source_address, weight)
 
+
 class searchAddress:
     def __init__(self, public_address, parent_address):
         self.public_address = public_address
         self.parent_address = parent_address
+
 
 def iterate_once(all_generations, last_score_set, appearance_count, limit_n): #not the first time here
     last_generation = all_generations[len(all_generations)-1]  #list of searchAddress objects
@@ -141,12 +149,14 @@ def correlations(public_address, n, limit_n):
                 score[k] = scoring_equation(1, v, 1.0)
     return score, generations, appearance
 
+
 def address_blacklisted(public_address):
     r = db.dbexecute("select count(*) from blacklisted_addresses where public_address='""+str(public_address)+';",True)
     if r[0][0] > 0:
         return True
     else:
         return False
+
 
 def addresses_at_n(public_address, n):
     result=[]
@@ -164,13 +174,16 @@ def addresses_at_n(public_address, n):
             result.append(e)
     return result
 
+
 def delete_address_correlations_on_address(public_address):
     db.dbexecute("delete from address_address_correlation * where from_address='"+str(public_address)+"';",False)
+
 
 def get_temporary_address_correlations(public_address, depth):
     a = record_address_correlations(public_address, depth)
     delete_address_correlations_on_address(public_address)
     return a
+
 
 def record_address_correlations(public_address, n):
     data = addresses_at_n(public_address, n)
@@ -185,6 +198,7 @@ def record_address_correlations(public_address, n):
         print i
         i=i+1
     return get_address_vector(public_address)
+
 
 def get_address_vector(public_address):
     dbstring = "select * from address_address_correlation where from_address='"+str(public_address)+"' order by weight desc;"
@@ -201,6 +215,7 @@ def get_address_vector(public_address):
     #         vector[i][1] = vector[i][1] / m
     return vector
 
+
 def upstream_txs_on_address(public_address):
     dbstring = "select * from outputs where public_address='"+str(public_address)+"';"
     results = db.dbexecute(dbstring, True)
@@ -211,6 +226,7 @@ def upstream_txs_on_address(public_address):
     #txs = list(set(txs)) #removes duplicates from db saving errors
     return txs
 
+
 def downstream_txs_on_address(public_address):
     dbstring = "select * from inputs where public_address='"+str(public_address)+"';"
     results = db.dbexecute(dbstring, True)
@@ -220,6 +236,7 @@ def downstream_txs_on_address(public_address):
             txs.append(x[1])
     #txs = list(set(txs)) #removes duplicates from db saving errors
     return txs
+
 
 def addresses_forward_local(public_address):
     txs = downstream_txs_on_address(public_address)
@@ -232,6 +249,7 @@ def addresses_forward_local(public_address):
                 addresses.append(x[0])
     return addresses
 
+
 def addresses_backwards_local(public_address):
     txs = upstream_txs_on_address(public_address)
     addresses = []
@@ -243,9 +261,11 @@ def addresses_backwards_local(public_address):
                 addresses.append(x[0])
     return addresses
 
+
 def write_header(height):
     n = bitcoind.connect("getblockhash", [height])
     db.add_header(n, '', height)
+
 
 def write_headers(j):
     n = bitcoind.connect("getblockcount", [])
