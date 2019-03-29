@@ -1,5 +1,6 @@
 import db
 
+
 def init():
     dbstring = "create table meta (lastblockdone int);"
     db.dbexecute(dbstring, False)
@@ -47,9 +48,11 @@ def init():
     dbstring = "create table headers (hash varchar(200), prev_hash varchar(200), height int);"
     db.dbexecute(dbstring, False)
 
+
 def delete_all():
     dbstring = "drop table mainheaders;drop table tx_outputs;drop table inputs;drop table address_address_correlation;drop table address_person_correlation;drop table addresses;drop table outputs; drop table people; drop table correlations; drop table meta; drop table transactions"
     db.dbexecute(dbstring, False)
+
 
 def reset():
     delete_all()
