@@ -1,5 +1,6 @@
 import hashlib
 
+
 def correlation_to_string(correlation_vector):
   #[[address, fraction]]
   answer = ''
@@ -7,6 +8,7 @@ def correlation_to_string(correlation_vector):
     answer = answer + "_"+x[0]
     answer = answer + ";"+str(x[1])
   return answer
+
 
 def string_to_correlation(correlation_string):
   answer = []
@@ -19,6 +21,7 @@ def string_to_correlation(correlation_string):
     temp.append(float(ss[1]))
     answer.append(temp)
   return answer
+
 
 def generate_new_id():
   return hashlib.sha256(str(random.random()))
