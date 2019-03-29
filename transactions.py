@@ -25,7 +25,7 @@ def verify_merkle(height, txhash):  #FEED IN A KNOWN HASH
   theblock = blocks.get_block_from_hash(blockhash)
   version = theblock['version']
   merkleroot = util.merkle(theblock['tx'])
-  bits = int(theblock['bits'],16)  #NEED BETTER WAY OF TRACKING THIS
+  bits = int(theblock['bits'], 16)  #NEED BETTER WAY OF TRACKING THIS
   time = theblock['time']
   nonce = theblock['nonce']
 
