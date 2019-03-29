@@ -10,18 +10,18 @@ prev_genesis_hash='0000000000000000000000000000000000000000000000000000000000000
 genesis_hash='000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'
 
 def get_block_count():
-  return bitcoind.connect('getblockcount',[])
+  return bitcoind.connect('getblockcount', [])
 
 def get_best_block_hash():
   return bitcoind.connect('getbestblockhash', [])
 
 def get_block_from_hash(blockhash):
-  return bitcoind.connect('getblock',[blockhash])
+  return bitcoind.connect('getblock', [blockhash])
 
 def check_block_legitimacy(blockhash, previous_block_hash, version):
   theblock = get_block_from_hash(blockhash)
   merkleroot = util.merkle(theblock['tx'])
-  bits = int(theblock['bits'],16)  #NEED BETTER WAY OF TRACKING THIS
+  bits = int(theblock['bits'], 16)  #NEED BETTER WAY OF TRACKING THIS
   time = theblock['time']
   nonce = theblock['nonce']
 
@@ -120,7 +120,7 @@ def build_blocks(blockn):
   block_hashes = saved.load_last_n_hashes(1000)
   last_block = block_hashes[len(block_hashes)-1]
   newblocks=[]
-  for i in range(0,blockn):
+  for i in range(0, blockn):
     last_block = build_block(last_block)
     newblocks.append(last_block)
   saved.add_hashes(newblocks)
