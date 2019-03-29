@@ -18,7 +18,7 @@ def load_last_n_hashes(n):
   file = open(filename, 'r+b')
   results=[]
   start = lines - n
-  for i in range(start,lines):
+  for i in range(start, lines):
     file.seek(i*200)
     buffhash_current = file.read(64)
     buffhash_prev = file.read(64)
@@ -57,7 +57,7 @@ def load_hashes():
 
   file = open(filename, 'r+b')
   results=[]
-  for i in range(0,lines):
+  for i in range(0, lines):
     file.seek(i*200)
     buffhash_current = file.read(64)
     buffhash_prev = file.read(64)
@@ -74,9 +74,9 @@ def add_hashes(hashes):
   filename='blockhashes.txt'
   file = open(filename, 'rb+')
 
-  file.seek(-72,2)
+  file.seek(-72, 2)
   file.write(bytes(hashes[0].hash))
-  file.seek(0,2)
+  file.seek(0, 2)
 
   data_to_write=''
   for hash in hashes:
@@ -105,7 +105,7 @@ def stitch():
   file.seek(64)
   previous_next_hash = file.read(64)
 
-  for i in range(1,lines):
+  for i in range(1, lines):
     file.seek(i*200)
     thishash = file.read(64)
     if previous_next_hash=="9"*64:
