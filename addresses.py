@@ -1,6 +1,7 @@
 import db
 import bitcoind
 
+
 class Address:
     def __init__(self, public_address):
         self.public_address = public_address
