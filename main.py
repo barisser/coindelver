@@ -41,7 +41,7 @@ def last_block_bitcoin():
 
 @app.route('/meta')
 def last_block_updated():
-    lastblock = db.dbexecute("select * from meta;",True)
+    lastblock = db.dbexecute("select * from meta;", True)
     d = {}
     d['last_block'] = str(lastblock[0][0])
     response=make_response(str(lastblock[0][0]), 200)
