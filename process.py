@@ -142,7 +142,7 @@ def correlations(public_address, n, limit_n):
     return score, generations, appearance
 
 def address_blacklisted(public_address):
-    r = db.dbexecute("select count(*) from blacklisted_addresses where public_address='""+str(public_address)+';",True)
+    r = db.dbexecute("select count(*) from blacklisted_addresses where public_address='""+str(public_address)+';", True)
     if r[0][0] > 0:
         return True
     else:
@@ -165,7 +165,7 @@ def addresses_at_n(public_address, n):
     return result
 
 def delete_address_correlations_on_address(public_address):
-    db.dbexecute("delete from address_address_correlation * where from_address='"+str(public_address)+"';",False)
+    db.dbexecute("delete from address_address_correlation * where from_address='"+str(public_address)+"';", False)
 
 def get_temporary_address_correlations(public_address, depth):
     a = record_address_correlations(public_address, depth)
@@ -194,7 +194,7 @@ def get_address_vector(public_address):
     if len(result)>0:
         for x in result:
             vector.append([x[1], x[2]])
-            m=m+math.pow(x[2],2)
+            m=m+math.pow(x[2], 2)
     # m=math.pow(m, 0.5)
     # if m>0:
     #     for i in range(len(vector)):
