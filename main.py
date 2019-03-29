@@ -50,7 +50,7 @@ def last_block_updated():
     return response
 
 @app.route('/address/<public_address>/txs')
-def txs_on_address(public_address = None):
+def txs_on_address(public_address=None):
     txs = addresses.txs_pertaining_to_address(public_address)
     jsonresponse={}
     jsonresponse['txs']=txs
@@ -62,7 +62,7 @@ def txs_on_address(public_address = None):
     return response
 
 @app.route('/address/<public_address>/<depth>')
-def correlations_on_address(public_address = None, depth = None):
+def correlations_on_address(public_address=None, depth=None):
     if depth == None:
         depth = 3
     else:
