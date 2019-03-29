@@ -7,8 +7,10 @@ import pybitcointools
 import saved
 import identity
 
+
 def get_raw_tx(txhash):
   return bitcoind.connect("getrawtransaction", [txhash])
+
 
 def txhash_from_raw(rawtx):
   r=rawtx.decode('hex')
@@ -17,6 +19,7 @@ def txhash_from_raw(rawtx):
   r=r.decode('hex')
   r=r[::-1].encode('hex')
   return r
+
 
 def verify_merkle(height, txhash):  #FEED IN A KNOWN HASH
   hash = saved.find_hash(height)
@@ -41,6 +44,7 @@ def verify_merkle(height, txhash):  #FEED IN A KNOWN HASH
     return True, txhash
   else:
     return False, ''
+
 
 def verify_tx(txhash, height):
   merkleresponse = verify_merkle(height, txhash)
