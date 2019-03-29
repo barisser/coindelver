@@ -1,6 +1,8 @@
 import hashlib
 
 # Hash pairs of items recursively until a single value is obtained
+
+
 def merkle(hashList):
     if len(hashList) == 1:
         return hashList[0]
@@ -11,6 +13,7 @@ def merkle(hashList):
     if len(hashList) % 2 == 1: # odd, hash last item twice
         newHashList.append(hash2(hashList[-1], hashList[-1]))
     return merkle(newHashList)
+
 
 def hash2(a, b):
     # Reverse inputs before and after hashing
