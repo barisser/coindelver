@@ -15,15 +15,15 @@ def assign_new_id_to_mined(tx, height):
     receiving_address = tx['out'][0]['addr']
     #check if address already exists
     dbstring = "select * from addresses where public_address='"+str(receiving_address)+"';"
-    found = db.dbexecute(dbstring,True)
+    found = db.dbexecute(dbstring, True)
     if len(found)==0:  #create new address in DB since this one hasnt been seen before
       the_id = generate_new_id()
       dbstring = "insert into people (person_id, firstblock) values ('"+str(the_id)+"', "+str(height)+");"
       print dbstring
-      db.dbexecute(dbstring,False)
+      db.dbexecute(dbstring, False)
       dbstring = "insert into addresses (public_address, person_id) values ('"+str(receiving_address)+"', '"+str(the_id)+"');"
       print dbstring
-      db.dbexecute(dbstring,False)
+      db.dbexecute(dbstring, False)
 
 def link_inputs(tx, height):
   ins = []
@@ -57,14 +57,14 @@ def link_addresses(address_list, block_height):
 
   if len(address_list)>0:
     for addr in address_list:  #CHECK HOW MANY ARE KNOWN, if more than 1 do nothing
-      found_id = db.dbexecute("select person_id from addresses where public_address='"+str(addr)+"';",True)
+      found_id = db.dbexecute("select person_id from addresses where public_address='"+str(addr)+"';", True)
       print found_id
       if len(found_id)>0:
         known_ids.append(found_id[0][0])
       else:
         dbstring = "insert into addresses (public_address) values ('"+str(addr)+"');"
         print dbstring
-        db.dbexecute(dbstring,False)
+        db.dbexecute(dbstring, False)
 
     if len(known_ids)>1:
       j=0 #do nothing
@@ -79,7 +79,7 @@ def link_addresses(address_list, block_height):
       #give them all a new person id
       the_id = generate_new_id()
       dbstring = "insert into people (person_id, firstblock) values ('"+str(the_id)+"', "+str(block_height)+");"
-      db.dbexecute(dbstring,False)
+      db.dbexecute(dbstring, False)
       for x in address_list:
         dbstring="update addresses set person_id = '"+str(the_id)+"' where public_address='"+str(x)+"';"
         print dbstring
