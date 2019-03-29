@@ -1,6 +1,7 @@
 import hashlib
 import struct
 
+
 def construct_header(version, hash_previous_block, merkle_root, time, bits, nonce):  #all inputs in hex
   ver = version
   prev_block = hash_previous_block
