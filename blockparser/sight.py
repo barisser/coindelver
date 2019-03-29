@@ -3,6 +3,7 @@ import sys
 from blocktools import *
 from block import Block, BlockHeader
 
+
 def parse(blockchain):
 	print 'print Parsing Block Chain'
 	counter = 0
@@ -11,6 +12,7 @@ def parse(blockchain):
 		block = Block(blockchain)
 		block.toString()
 		counter+=1
+
 
 def main():
 	if len(sys.argv) < 2:
