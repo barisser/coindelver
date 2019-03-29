@@ -1,5 +1,6 @@
 import db
 
+
 def downstream_txs(txhash):
     results = db.select_tx_output(txhash)
     txs = []
@@ -8,9 +9,11 @@ def downstream_txs(txhash):
             txs.append([x[3], x[1], x[6]])
     return txs
 
+
 def sum_inputs_txhash(txhash):
     results = db.dbexecute("select sum(amount) from tx_outputs where spent_at_txhash='"+str(txhash)+"';", True)
     return results[0][0]
+
 
 def process_children(parent_txhash, parent_index, parent_amount):
     results = db.dbexecute("select * from tx_outputs where txhash='"+str(parent_txhash)+"' and index='"+str(parent_index)+"';", True)
